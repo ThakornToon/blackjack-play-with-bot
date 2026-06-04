@@ -10,9 +10,9 @@ import java.awt.*;
  * Help แสดงเป็น popup dialog แทนการสลับ panel
  */
 public class BlackjackGUI extends JFrame {
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
-    private MenuPanel menuPanel;
+    private final CardLayout cardLayout;
+    private final JPanel mainPanel;
+    private final MenuPanel menuPanel;
     private GamePanel gamePanel;
     private BlackjackGameModel model;
 

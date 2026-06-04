@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Deck {
     private List<Card> cards;
-    private int numDecks;
+    private final int numDecks;
 
     /**
      * Constructor
@@ -50,17 +50,9 @@ public class Deck {
      * จั่วไพ่ 1 ใบ (ถ้าไพ่หมด ให้สร้างสำรับใหม่)
      */
     public Card drawCard() {
-        if (cards.isEmpty()) {
-            init();
+        if (cards.size() < numDecks * 52 * 0.2) {
+            init(); // reshuffle early
         }
         return cards.remove(0);
-    }
-
-    /**
-     * Get number of cards remaining
-     * จำนวนไพ่ที่เหลือในรองเท้า
-     */
-    public int remainingCards() {
-        return cards.size();
     }
 }

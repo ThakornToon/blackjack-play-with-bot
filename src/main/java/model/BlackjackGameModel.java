@@ -16,17 +16,17 @@ import javax.swing.Timer;
  *      Fix: restore currentPlayerIdx = startIdx before returning.
  */
 public class BlackjackGameModel {
-    private List<Player> players;
+    private final List<Player> players;
     private int dealerIndex;
-    private Deck deck;
+    private final Deck deck;
     private int currentPlayerIdx;
     private boolean roundInProgress;
     private boolean waitingForHuman;
     private boolean gameOver;
     private Player winner;
     private int roundNumber;
-    private int[] roundWins;
-    private List<String> roundHistory;
+    private final int[] roundWins;
+    private final List<String> roundHistory;
     private boolean paused;
     private boolean dealerRevealed;
     private boolean allPlayersFinished;
@@ -69,10 +69,8 @@ public class BlackjackGameModel {
     public boolean isGameOver()             { return gameOver; }
     public Player  getWinner()              { return winner; }
     public int  getRoundNumber()            { return roundNumber; }
-    public int[]   getRoundWins()           { return roundWins; }
     public List<String> getRoundHistory()   { return roundHistory; }
     public boolean isRoundInProgress()      { return roundInProgress; }
-    public boolean isWaitingForHuman()      { return waitingForHuman; }
     public Player  getCurrentDealer()       { return players.get(dealerIndex); }
     public boolean isDealerRevealed()       { return dealerRevealed; }
 

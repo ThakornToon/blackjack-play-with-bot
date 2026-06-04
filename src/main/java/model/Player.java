@@ -8,11 +8,11 @@ import java.util.List;
  * แทนผู้เล่น (มนุษย์หรือบอท) มีเงินคงเหลือและมือไพ่ (รองรับ Split)
  */
 public class Player {
-    private String name;
+    private final String name;
     private double balance;
-    private boolean isHuman;
+    private final boolean isHuman;
     private boolean isActive;      // ยังไม่ถูกคัดออก (เงินไม่หมด)
-    private List<Hand> hands;      // รองรับการ Split: สามารถมีหลายมือได้
+    private final List<Hand> hands;      // รองรับการ Split: สามารถมีหลายมือได้
     private int currentHandIndex;  // มือที่กำลังเล่นอยู่ในรอบนี้
 
     public Player(String name, double initialBalance, boolean isHuman) {
@@ -48,14 +48,6 @@ public class Player {
         return false;
     }
 
-    /**
-     * Add winnings to balance (e.g., after round settlement)
-     * เพิ่มเงินรางวัลเข้าสู่ยอดคงเหลือ
-     */
-    public void addWinnings(int amount) {
-        balance += amount;
-    }
-
     public Hand getCurrentHand() {
         if (currentHandIndex >= hands.size()) {
             currentHandIndex = hands.size() - 1;
@@ -69,10 +61,6 @@ public class Player {
         currentHandIndex++;
     }
 
-    public void resetHandIndex() {
-        currentHandIndex = 0;
-    }
-
     public boolean hasMoreHands() {
         return currentHandIndex < hands.size() - 1;
     }
@@ -81,12 +69,9 @@ public class Player {
         hands.add(newHand);
     }
 
-    public int getCurrentHandIndex() { return currentHandIndex; }
-
     // Getters and Setters
     public String getName() { return name; }
     public double getBalance() { return balance; }
-    public void setBalance(double balance) { this.balance = balance; }
     public boolean isHuman() { return isHuman; }
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }

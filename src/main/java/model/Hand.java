@@ -8,7 +8,7 @@ import java.util.List;
  * แทนมือไพ่ 1 ชุดของผู้เล่น (รองรับการแยกไพ่ Split)
  */
 public class Hand {
-    private List<Card> cards;
+    private final List<Card> cards;
     private int bet;           // เงินเดิมพันของมือนี้
     private boolean isDoubled; // ระบุว่าได้ทำการ Double แล้วหรือไม่
     private boolean isSplit;   // ระบุว่าเกิดจากการ Split หรือไม่

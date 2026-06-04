@@ -15,23 +15,33 @@ import java.awt.*;
  */
 public class GamePanel extends JPanel {
     private boolean endSummaryShown = false;
-    private BlackjackGameModel model;
-    private BlackjackGUI parent;
+    private final BlackjackGameModel model;
+    private final BlackjackGUI parent;
 
-    private JPanel playersPanel;
-    private JTextArea logArea;
-    private JButton hitBtn, standBtn, doubleBtn, insuranceBtn, splitBtn;
-    private JButton pauseBtn, resumeBtn, exitBtn, ruleBtn, nextRoundBtn;
-    private JLabel roundLabel, dealerLabel, turnLabel;
+    private final JPanel playersPanel;
+    private final JTextArea logArea;
+    private final JButton hitBtn;
+    private final JButton standBtn;
+    private final JButton doubleBtn;
+    private final JButton insuranceBtn;
+    private final JButton splitBtn;
+    private final JButton pauseBtn;
+    private final JButton resumeBtn;
+    private final JButton exitBtn;
+    private final JButton ruleBtn;
+    private final JButton nextRoundBtn;
+    private final JLabel roundLabel;
+    private final JLabel dealerLabel;
+    private final JLabel turnLabel;
     private Timer autoRefreshTimer;
 
     // Bet panel components (kept as fields so refresh() can update their text)
-    private JPanel betPanel;
-    private JTextField betField;
-    private JButton confirmBetBtn;
-    private JLabel betLabel;
+    private final JPanel betPanel;
+    private final JTextField betField;
+    private final JButton confirmBetBtn;
+    private final JLabel betLabel;
 
-    private JPanel actionPanel;
+    private final JPanel actionPanel;
 
     public GamePanel(BlackjackGameModel model, BlackjackGUI parent) {
         this.model = model;
