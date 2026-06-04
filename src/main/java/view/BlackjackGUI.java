@@ -66,7 +66,7 @@ public class BlackjackGUI extends JFrame {
      * กฎเกมแสดงเป็น popup dialog แทนที่จะสลับ panel
      */
     public void showHelp() {
-        HelpPanel helpDialog = new HelpPanel(this);
+        HelpDialog helpDialog = new HelpDialog(this);
         helpDialog.setVisible(true);  // blocks until dialog is closed (modal)
     }
 }

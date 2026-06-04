@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * HelpPanel.java - Help popup dialog showing game rules
+ * HelpDialog.java - Help popup dialog showing game rules
  * แสดงกฎและวิธีเล่นในรูปแบบ popup dialog (modal)
  *
  * Layout : BorderLayout
@@ -21,11 +21,11 @@ import java.awt.*;
  * │              (JPanel + Close Button)            │
  * └─────────────────────────────────────────────────┘
  *
- * การใช้งาน: HelpPanel dlg = new HelpPanel(parentFrame); dlg.setVisible(true);
+ * การใช้งาน: HelpDialog dlg = new HelpDialog(parentFrame); dlg.setVisible(true);
  */
-public class HelpPanel extends JDialog {
+public class HelpDialog extends JDialog {
 
-    public HelpPanel(JFrame parent) {
+    public HelpDialog(JFrame parent) {
         super(parent, "How to Play – Blackjack", true); // modal
         setSize(760, 620);
         setLocationRelativeTo(parent);
@@ -67,7 +67,7 @@ public class HelpPanel extends JDialog {
                         "├─────────────┼────────────────────────────────────────────────────┤\n" +
                         "│ 1. Place bet│ Each round starts with you placing a bet           │\n" +
                         "│ 2. Deal     │ Everyone gets 2 cards. Dealer shows 1 card         │\n" +
-                        "│ 3. Take turn│ Players take turns doing 1 action each             │\n" +
+                        "│ 3. Take turn│ Players take turns                                 │\n" +
                         "│ 4. Dealer   │ After all players, dealer must hit until 17+       │\n" +
                         "│ 5. Settle   │ Higher total wins, push on tie                     │\n" +
                         "│ 6. Rotate   │ Dealer rotates to next player each round           │\n" +

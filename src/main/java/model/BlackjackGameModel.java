@@ -407,7 +407,6 @@ public class BlackjackGameModel {
                 finishRound();  // จบรอบและทำการตัดสินรางวัล
                 return;
             }
-
         } while (!players.get(currentPlayerIdx).isActive()
                 || isPlayerFinished(players.get(currentPlayerIdx)));
 
