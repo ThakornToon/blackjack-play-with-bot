@@ -153,7 +153,7 @@ public class GamePanel extends JPanel {
         exitBtn       = createLargeButton("EXIT",      new Color(178, 34, 34),   Color.WHITE);
         ruleBtn       = createLargeButton("RULES",     new Color(70, 130, 180),  Color.WHITE);
         // nextRoundBtn is used ONLY when the human player is eliminated
-        nextRoundBtn  = createLargeButton("▶ NEXT ROUND", new Color(255, 140, 0), Color.BLACK);
+        nextRoundBtn  = createLargeButton("▶ NEXT ROUND", new Color(255, 140, 0), Color.WHITE);
 
         hitBtn.addActionListener(e -> { model.processAction("Hit");       refresh(); });
         standBtn.addActionListener(e -> { model.processAction("Stand");   refresh(); });

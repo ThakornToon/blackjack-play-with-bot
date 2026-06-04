@@ -69,7 +69,6 @@ public class BlackjackGameModel {
     private boolean gameOver;                   // สถานะจบทัวร์นาเมนต์ (เมื่อเหลือผู้เล่นไม่ถึง 2 คน)
     private Player winner;                      // วัตถุผู้เล่นที่เป็นผู้ชนะคนสุดท้าย
     private int roundNumber;                    // เลขจำนวนรอบที่เล่นไปแล้ว
-    private final int[] roundWins;              // สถิติจำนวนรอบที่ชนะของผู้เล่นแต่ละคน
     private final List<String> roundHistory;    // ประวัติบันทึกเหตุการณ์ต่างๆ ในเกม (Game Log)
     private boolean paused;                     // ระบุว่าเกมถูกหยุดชั่วคราวหรือไม่
     private boolean dealerRevealed;             // ระบุว่าดีลเลอร์ได้เปิดเผยไพ่ใบที่สองที่ซ่อนไว้แล้วหรือไม่
@@ -91,7 +90,6 @@ public class BlackjackGameModel {
         dealerIndex = 0;
         deck = new Deck(4);
         roundNumber = 0;
-        roundWins = new int[players.size()];
         roundHistory = new ArrayList<>();
         roundInProgress = false;
         waitingForHuman = false;
@@ -520,7 +518,6 @@ public class BlackjackGameModel {
 
                 p.addBalance(payout);
                 dealer.addBalance(originalBet - payout);
-                if (payout > hand.getBet()) roundWins[i]++;
             }
         }
 
