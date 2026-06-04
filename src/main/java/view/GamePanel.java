@@ -22,6 +22,30 @@ import java.awt.*;
  *
  *   betPanel   → แสดงเมื่อ human ยังเล่นอยู่ (วางเดิมพัน + เริ่มรอบ)
  *   nextRoundBtn → แสดงเฉพาะเมื่อ human ถูกคัดออก (ดูบอทเล่นต่อ ไม่ต้องวางเดิมพัน)
+ *
+ *                          ┌─────────────────┐
+ *                          │     ผู้เล่นกดปุ่ม    │
+ *                          └────────┬────────┘
+ *                                   │
+ *                                   ▼
+ * ┌─────────────────────────────────────────────────────────────────────┐
+ * │                           GamePanel                                 │
+ * │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐   │
+ * │  │    ปุ่มต่างๆ    │───▶│ เรียก Model   │───▶│ model.processAction()│   │
+ * │  │  (HIT, etc)  │    │              │    │                      │   │
+ * │  └──────────────┘    └──────────────┘    └──────────┬───────────┘   │
+ * │                                                     │               │
+ * │                                                     ▼               │
+ * │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐   │
+ * │  │  refresh()   │◀───│ UIUpdater    │◀───│   Model เปลี่ยนสถานะ   │   │
+ * │  │  (อัปเดต UI)  │    │ (callback)   │    │                      │   │
+ * │  └──────────────┘    └──────────────┘    └──────────────────────┘   │
+ * │         ▲                                                           │
+ * │         │                                                           │
+ * │  ┌──────┴──────┐                                                    │
+ * │  │ Timer200ms  │ (ทำงานตลอดเวลา)                                    │
+ * │  └─────────────┘                                                    │
+ * └─────────────────────────────────────────────────────────────────────┘
  */
 public class GamePanel extends JPanel {
     private boolean endSummaryShown = false;
@@ -194,10 +218,11 @@ public class GamePanel extends JPanel {
         bottomContainer.add(actionPanel, BorderLayout.SOUTH);
         add(bottomContainer, BorderLayout.SOUTH);
 
-        model.setUIUpdater(this::refresh);
+        model.setUIUpdater(this::refresh);  // ส่งเมธอด refresh() ไปให้ Model
 
+        // สร้าง Timer ที่ทำงานทุก 200 ms เรียก refresh()
         autoRefreshTimer = new Timer(200, e -> refresh());
-        autoRefreshTimer.start();
+        autoRefreshTimer.start();  // เริ่มทำงาน
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
@@ -249,8 +274,43 @@ public class GamePanel extends JPanel {
     }
 
     // ── Main refresh ───────────────────────────────────────────────────────────
-
+    /**
+     * refresh() {
+     *     │
+     *     ├── 1. อัปเดตแถบข้อมูลบนสุด
+     *     │       roundLabel.setText("Round: " + รอบที่)
+     *     │       dealerLabel.setText("Dealer: " + ชื่อดีลเลอร์)
+     *     │       turnLabel.setText(สถานะปัจจุบัน)
+     *     │
+     *     ├── 2. อัปเดตผู้เล่นแต่ละคน (Loop)
+     *     │       for (ผู้เล่นทุกคน) {
+     *     │           - เปลี่ยนชื่อ + สถานะ (👑 DEALER, 💀 OUT, ◀ PLAYING)
+     *     │           - อัปเดตเงินคงเหลือ
+     *     │           - แสดงมือไพ่ (ซ่อนไพ่ดีลเลอร์ใบที่ 2 ถ้าจำเป็น)
+     *     │       }
+     *     │
+     *     ├── 3. อัปเดต Game Log
+     *     │       logArea.setText(ประวัติทั้งหมด)
+     *     │       เลื่อนลงไปล่าสุดอัตโนมัติ
+     *     │
+     *     ├── 4. เปิด/ปิดปุ่มต่างๆ
+     *     │       hitBtn.setEnabled(isHumanTurn)
+     *     │       doubleBtn.setEnabled(isHumanTurn && canDouble)
+     *     │       splitBtn.setEnabled(isHumanTurn && canSplit)
+     *     │       insuranceBtn.setEnabled(isHumanTurn && canBuyInsurance)
+     *     │
+     *     ├── 5. สลับการแสดง Bet Panel / Next Round Button
+     *     │       if (ระหว่างรอบ และ มนุษย์ยังอยู่) → แสดง Bet Panel
+     *     │       if (ระหว่างรอบ และ มนุษย์ตาย) → แสดง Next Round Button
+     *     │
+     *     └── 6. ตรวจสอบเกมจบ
+     *             if (gameOver และ ยังไม่เคยแสดงสรุป) {
+     *                 showEndSummary() → หยุด Timer → แสดงผลผู้ชนะ
+     *             }
+     * }
+     */
     public void refresh() {
+        // ── 1. Update roundLabel, dealerLabel, turnLabel ──────────────────────────────────
         roundLabel.setText("Round: " + model.getRoundNumber());
         if (model.getDealerIndex() >= 0 && model.getPlayers().size() > model.getDealerIndex()) {
             dealerLabel.setText("Dealer: " + model.getPlayers().get(model.getDealerIndex()).getName());
@@ -273,7 +333,7 @@ public class GamePanel extends JPanel {
                     : "You are out – click NEXT ROUND to watch the bots");
         }
 
-        // ── Players panel update ───────────────────────────────────────────────
+        // ── 2. Players panel update ───────────────────────────────────────────────
         // อัปเดตข้อมูลของผู้เล่นแต่ละคนใน Swing component ที่สร้างเตรียมไว้แล้ว (หลีกเลี่ยงการสร้าง JPanel ใหม่ทุกๆ วินาที)
         for (int i = 0; i < model.getPlayers().size(); i++) {
             Player p = model.getPlayers().get(i);
@@ -310,13 +370,13 @@ public class GamePanel extends JPanel {
             ui.handArea.setText(sb.toString());
         }
 
-        // ── Game log ───────────────────────────────────────────────────────────
+        // ── 3. Game log ───────────────────────────────────────────────────────────
         StringBuilder logSb = new StringBuilder();
         for (String log : model.getRoundHistory()) logSb.append(log).append("\n");
         logArea.setText(logSb.toString());
-        logArea.setCaretPosition(logArea.getDocument().getLength());
+        logArea.setCaretPosition(logArea.getDocument().getLength());  // เลื่อน Scrollbar ของ Game Log ลงไปที่บรรทัดล่าสุดโดยอัตโนมัติ
 
-        // ── Action button enable/disable ───────────────────────────────────────
+        // ── 4. Action button enable/disable ───────────────────────────────────────
         boolean isHumanTurn = model.isHumanTurn();
         hitBtn.setEnabled(isHumanTurn);
         standBtn.setEnabled(isHumanTurn);
@@ -326,7 +386,7 @@ public class GamePanel extends JPanel {
         pauseBtn.setEnabled(!model.isGameOver() && !model.isPaused());
         resumeBtn.setEnabled(model.isPaused());
 
-        // ── Bet panel vs Next-Round button (mutually exclusive) ────────────────
+        // ── 5. Bet panel vs Next-Round button (mutually exclusive) ────────────────
         boolean betweenRounds = !model.isRoundInProgress() && !model.isGameOver();
         boolean humanActive   = model.getPlayers().get(0).isActive();
 
@@ -352,7 +412,7 @@ public class GamePanel extends JPanel {
         nextRoundBtn.setVisible(showNextRound);
         nextRoundBtn.setEnabled(showNextRound);
 
-        // ── End summary ────────────────────────────────────────────────────────
+        // ── 6. End summary ────────────────────────────────────────────────────────
         if (model.isGameOver() && !endSummaryShown) {
             endSummaryShown = true;
             showEndSummary();

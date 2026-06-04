@@ -103,7 +103,10 @@ public class BlackjackGameModel {
      * Registers a callback interface to update the UI on model state modifications.
      * ตั้งค่า Runnable สำหรับเรียกอัปเดตหน้า GUI เมื่อมีการเปลี่ยนแปลงค่าต่างๆ ใน Model
      */
-    public void setUIUpdater(Runnable updater) { this.uiUpdater = updater; }
+    public void setUIUpdater(Runnable updater) {
+        // เป็นแค่ Runnable ไม่รู้ว่าเป็นอะไร
+        this.uiUpdater = updater;
+    }
 
     /**
      * Helper to run UI refresh and keep the memory usage bound by capping history size.

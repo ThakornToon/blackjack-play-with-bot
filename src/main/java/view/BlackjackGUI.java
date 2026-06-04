@@ -56,8 +56,9 @@ public class BlackjackGUI extends JFrame {
         mainPanel.add(menuPanel, "Menu");
         mainPanel.add(gamePanel, "Game");
 
-        mainPanel.revalidate();
-        mainPanel.repaint();
+        // ใช้คู่กันเสมอ เมื่อมีการเปลี่ยนแปลง component แบบไดนามิก
+        mainPanel.revalidate();  // ให้ Layout Manager คำนวณตำแหน่งใหม่
+        mainPanel.repaint();  // วาดหน้าจอใหม่
     }
 
     /**

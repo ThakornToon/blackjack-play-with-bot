@@ -1,0 +1,231 @@
+@startuml
+class model.BlackjackGameModel {
+- List<Player> players
+- int dealerIndex
+- Deck deck
+- int currentPlayerIdx
+- boolean roundInProgress
+- boolean waitingForHuman
+- boolean gameOver
+- Player winner
+- int roundNumber
+- List<String> roundHistory
+- boolean paused
+- boolean dealerRevealed
+- boolean allPlayersFinished
+- int pendingHumanBet
+- Runnable uiUpdater
++ <<Create>> BlackjackGameModel()
++ void setUIUpdater(Runnable)
+- void notifyUI()
++ List<Player> getPlayers()
++ int getDealerIndex()
++ boolean isPaused()
++ void setPaused(boolean)
++ boolean isGameOver()
++ Player getWinner()
++ int getRoundNumber()
++ List<String> getRoundHistory()
++ boolean isRoundInProgress()
++ Player getCurrentDealer()
++ boolean isDealerRevealed()
++ Player getCurrentPlayer()
++ void setHumanBet(int)
++ void startNewRound()
+- boolean isCurrentPlayerDone()
++ void processAction(String)
++ void processBotTurn()
+- void nextPlayer()
+- boolean isPlayerFinished(Player)
+- void finishRound()
++ boolean areAllPlayersFinished()
++ boolean isHumanTurn()
++ boolean canBuyInsurance()
++ boolean canSplit()
++ boolean canDouble()
+}
+
+
+class model.Player {
+- String name
+- double balance
+- boolean isHuman
+- boolean isActive
+- List<Hand> hands
+- int currentHandIndex
++ <<Create>> Player(String,double,boolean)
++ void resetHands()
++ boolean placeBet(int)
++ Hand getCurrentHand()
++ int getCurrentHandIndex()
++ List<Hand> getHands()
++ void nextHand()
++ boolean hasMoreHands()
++ void addSplitHand(Hand)
++ String getName()
++ double getBalance()
++ boolean isHuman()
++ boolean isActive()
++ void setActive(boolean)
++ boolean deductBalance(double)
++ void addBalance(double)
++ String toString()
+}
+
+
+class model.Deck {
+- List<Card> cards
+- int numDecks
++ <<Create>> Deck(int)
+- void init()
++ void shuffle()
++ Card drawCard()
+}
+
+
+class view.BlackjackGUI {
+- CardLayout cardLayout
+- JPanel mainPanel
+- MenuPanel menuPanel
+- GamePanel gamePanel
+- BlackjackGameModel model
++ <<Create>> BlackjackGUI()
++ void showGame()
++ void showMenu()
++ void resetGame()
++ void showHelp()
+}
+
+
+class model.BasicStrategy {
++ {static} String getAction(Hand,int,boolean,boolean,int)
+}
+
+class model.Hand {
+- List<Card> cards
+- int bet
+- boolean isDoubled
+- boolean isSplit
+- boolean isInsurance
+- boolean isStood
++ <<Create>> Hand(int)
++ void addCard(Card)
++ List<Card> getCards()
++ int getBet()
++ void setBet(int)
++ void doubleBet()
++ boolean isDoubled()
++ void setSplit(boolean)
++ boolean isSplit()
++ void setInsurance(boolean)
++ boolean isInsurance()
++ void setStood(boolean)
++ boolean isStood()
++ int getTotal()
++ boolean isBlackjack()
++ boolean isBust()
++ boolean isSoft()
++ String displayHand()
+}
+
+
+class view.GamePanel {
+- boolean endSummaryShown
+- BlackjackGameModel model
+- BlackjackGUI parent
+- JPanel playersPanel
+- JTextArea logArea
+- JButton hitBtn
+- JButton standBtn
+- JButton doubleBtn
+- JButton insuranceBtn
+- JButton splitBtn
+- JButton pauseBtn
+- JButton resumeBtn
+- JButton exitBtn
+- JButton ruleBtn
+- JButton nextRoundBtn
+- JLabel roundLabel
+- JLabel dealerLabel
+- JLabel turnLabel
+- Timer autoRefreshTimer
+- JPanel betPanel
+- JTextField betField
+- JButton confirmBetBtn
+- JLabel betLabel
+- JPanel actionPanel
+- PlayerUI[] playerUIs
++ <<Create>> GamePanel(BlackjackGameModel,BlackjackGUI)
+- JButton createLargeButton(String,Color,Color)
+- void startRoundWithBet()
++ void refresh()
+- void showEndSummary()
+}
+
+
+class view.GamePanel$PlayerUI {
+~ JPanel panel
+~ JLabel nameLabel
+~ JLabel balanceLabel
+~ JTextArea handArea
+~ <<Create>> PlayerUI(Player)
+}
+
+
+class Main {
++ {static} void main(String[])
+}
+
+class model.Card {
+- Suit suit
+- Rank rank
++ <<Create>> Card(Suit,Rank)
++ int getValue()
++ String getShortName()
++ Rank getRank()
++ String toString()
+}
+
+
+enum model.Suit {
++  HEARTS
++  DIAMONDS
++  CLUBS
++  SPADES
+}
+
+enum model.Rank {
++  TWO
++  THREE
++  FOUR
++  FIVE
++  SIX
++  SEVEN
++  EIGHT
++  NINE
++  TEN
++  JACK
++  QUEEN
++  KING
++  ACE
+}
+
+class view.MenuPanel {
+- BlackjackGUI parent
++ <<Create>> MenuPanel(BlackjackGUI)
+- JButton createMenuButton(String,Color)
+}
+
+
+class view.HelpPanel {
++ <<Create>> HelpPanel(JFrame)
+}
+
+
+
+view.JFrame <|-- view.BlackjackGUI
+view.JPanel <|-- view.GamePanel
+view.GamePanel +.. view.GamePanel$PlayerUI
+view.JPanel <|-- view.MenuPanel
+view.JDialog <|-- view.HelpPanel
+@enduml
