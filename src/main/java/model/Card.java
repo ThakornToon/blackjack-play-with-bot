@@ -14,6 +14,10 @@ public class Card {
     private final Suit suit;
     private final Rank rank;
 
+    /**
+     * Constructor to initialize a Card object with a specific suit and rank.
+     * คอนสตรัคเตอร์สำหรับสร้างวัตถุไพ่โดยระบุดอกและแต้ม/หน้าไพ่
+     */
     public Card(Suit suit, Rank rank) {
         this.suit = suit;
         this.rank = rank;
@@ -24,17 +28,24 @@ public class Card {
      * ค่าของไพ่ตามกติกา Blackjack (Ace = 11, face cards = 10)
      */
     public int getValue() {
+        // ในกติกา Blackjack, Ace จะเริ่มต้นด้วยค่าเป็น 11 แต้ม (และอาจลดเป็น 1 ในภายหลังหากแต้มเกิน)
         if (rank == Rank.ACE) return 11;
+        
+        // ไพ่หน้าคน (Jack, Queen, King) หรือไพ่ 10 มีค่าเท่ากับ 10 แต้ม
+        // เราใช้ rank.ordinal() เพื่อเปรียบเทียบลำดับการประกาศใน Enum
         if (rank.ordinal() >= Rank.TEN.ordinal()) return 10;
+        
+        // สำหรับไพ่ตัวเลขอื่นๆ (2-9), ค่าจะตรงกับลำดับของมันบวกด้วย 2 (เช่น Rank.TWO มี ordinal เป็น 0 -> 0 + 2 = 2 แต้ม)
         return rank.ordinal() + 2;  // TWO=2, THREE=3, ...
     }
 
     /**
-     * Get short name for display (e.g., "AH" for Ace of Hearts)
-     * ชื่อย่อสำหรับแสดงผล เช่น "AH" แทน Ace of Hearts
+     * Get short name for display (e.g., "A♥" for Ace of Hearts)
+     * ชื่อย่อสำหรับแสดงผล เช่น "A♥" แทน Ace of Hearts
      */
     public String getShortName() {
         String r;
+        // แปลง Rank เป็นรหัสย่อสำหรับแสดงผลบนการ์ดใน GUI
         switch (rank) {
             case TEN: r = "10"; break;
             case JACK: r = "J"; break;
@@ -44,6 +55,7 @@ public class Card {
             default: r = String.valueOf(getValue());
         }
         String s;
+        // แปลง Suit หรือดอกไพ่เป็นสัญลักษณ์ Unicode (♥, ♦, ♣, ♠) เพื่อความสวยงามใน GUI
         switch (suit) {
             case HEARTS: s = "♥"; break;
             case DIAMONDS: s = "♦"; break;
@@ -54,6 +66,9 @@ public class Card {
         return r + s;
     }
 
+    /**
+     * Getter for rank of the card.
+     */
     public Rank getRank() { return rank; }
 
     @Override

@@ -9,12 +9,16 @@ import java.util.List;
  */
 public class Hand {
     private final List<Card> cards;
-    private int bet;           // เงินเดิมพันของมือนี้
-    private boolean isDoubled; // ระบุว่าได้ทำการ Double แล้วหรือไม่
-    private boolean isSplit;   // ระบุว่าเกิดจากการ Split หรือไม่
-    private boolean isInsurance; // ระบุว่าซื้อ Insurance หรือไม่
-    private boolean isStood;   // ระบุว่าเลือก Stand แล้วหรือยัง
+    private int bet;  // เงินเดิมพันของมือนี้
+    private boolean isDoubled;  // ระบุว่าได้ทำการ Double แล้วหรือไม่
+    private boolean isSplit;  // ระบุว่าเกิดจากการ Split หรือไม่
+    private boolean isInsurance;  // ระบุว่าซื้อ Insurance หรือไม่
+    private boolean isStood;  // ระบุว่าเลือก Stand แล้วหรือยัง
 
+    /**
+     * Constructor for Hand with an initial bet.
+     * คอนสตรัคเตอร์สร้างมือไพ่พร้อมกำหนดเงินเดิมพันเริ่มต้น
+     */
     public Hand(int bet) {
         this.cards = new ArrayList<>();
         this.bet = bet;
@@ -36,6 +40,10 @@ public class Hand {
         this.bet = bet;
     }
 
+    /**
+     * Double the current bet and mark this hand as doubled.
+     * เพิ่มเดิมพันเป็น 2 เท่าสำหรับกฎ Double Down
+     */
     public void doubleBet() {
         bet *= 2;
         isDoubled = true;
@@ -56,11 +64,13 @@ public class Hand {
     public int getTotal() {
         int total = 0;
         int aces = 0;
+        // นับแต้มรวมโดยตั้งค่า Ace ทุกใบให้มีค่าสูงสุดเป็น 11 ก่อน
         for (Card c : cards) {
             total += c.getValue();
             if (c.getRank() == Card.Rank.ACE) aces++;
         }
         // If total > 21 and we have Aces, change Ace from 11 to 1
+        // หากแต้มเกิน 21 และในมือมี Ace (ที่นับเป็น 11), ให้ลดค่าของ Ace ลงเหลือ 1 คะแนนทีละใบ (ลบออกทีละ 10 แต้ม)
         while (total > 21 && aces > 0) {
             total -= 10;
             aces--;
@@ -69,10 +79,11 @@ public class Hand {
     }
 
     /**
-     * Check if this hand is a natural Blackjack (Ace + 10-value card)
+     * Check if this hand is a natural Blackjack
      * ตรวจสอบว่าเป็น Blackjack ธรรมชาติหรือไม่
      */
     public boolean isBlackjack() {
+        // Blackjack ธรรมชาติเกิดจากการได้ 21 แต้มด้วยไพ่ 2 ใบแรกเท่านั้น และต้องไม่ใช่มือที่เกิดจากการ Split
         return cards.size() == 2 && getTotal() == 21 && !isSplit;
     }
 
@@ -83,29 +94,33 @@ public class Hand {
     public boolean isBust() {
         return getTotal() > 21;
     }
+
     /**
-     * Check if hand is soft (contains Ace counted as 11)
+     * Check if hand is soft (contains Ace counted as 11 without busting)
+     * ตรวจสอบว่าเป็น Soft hand หรือไม่ (มี Ace และนับเป็น 11 แล้วไม่เกิน 21)
      */
     public boolean isSoft() {
         int total = 0;
         int aces = 0;
-        for (Card c : cards) { total += c.getValue(); if (c.getRank()==Card.Rank.ACE) aces++; }
-        while (total > 21 && aces > 0) { total -= 10; aces--; }
+
+        for (Card c : cards) {
+            total += c.getValue();  // Ace นับเป็น 11 ก่อน
+            if (c.getRank() == Card.Rank.ACE) {
+                aces++;
+            }
+        }
+
+        // คล้ายกับ getTotal() เพื่อรองรับกรณีที่ผู้เล่นมี Ace หลายใบ (เช่น A, A, 5)
+        // เราต้องตรวจสอบว่าหลังจากหักลบแต้มของ Ace บางใบที่จำเป็นต้องเป็น 1 แล้ว
+        // ยังคงมี Ace หลงเหลืออยู่อย่างน้อย 1 ใบที่ยังนับแต้มเป็น 11 คะแนนได้โดยแต้มรวมไม่เกิน 21
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces--;
+        }
+
+        // Soft hand = มี Ace และการนับ Ace เป็น 11 ไม่ทำให้แต้มเกิน 21
+        // (กล่าวคือ มี Ace อย่างน้อย 1 ใบในมือที่ยังมีค่าเป็น 11 แต้มอยู่)
         return aces > 0;
-    }
-
-
-    /**
-     * Clear all cards and reset status (for new round)
-     * ล้างไพ่ทั้งหมดและรีเซ็ตสถานะ (สำหรับรอบใหม่)
-     */
-    public void clear() {
-        cards.clear();
-        isDoubled = false;
-        isSplit = false;
-        isInsurance = false;
-        isStood = false;
-        bet = 0;
     }
 
     /**
@@ -114,10 +129,12 @@ public class Hand {
      */
     public String displayHand() {
         StringBuilder sb = new StringBuilder();
+        // รวมสัญลักษณ์ไพ่แต่ละใบ (เช่น "A♥ 10♦ ")
         for (Card c : cards) {
             sb.append(c.getShortName()).append(" ");
         }
         sb.append("= ").append(getTotal());
+        // เพิ่มสถานะพิเศษเพื่อเป็นข้อมูลในการเล่น
         if (isDoubled) sb.append(" (Doubled)");
         if (isSplit) sb.append(" (Split)");
         if (isStood) sb.append(" (Stood)");

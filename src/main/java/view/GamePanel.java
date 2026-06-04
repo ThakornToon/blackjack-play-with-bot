@@ -8,10 +8,20 @@ import java.awt.*;
 /**
  * GamePanel.java - Main game screen with controls and display
  *
- * แก้ไข UI overlap:
- *   • betPanel   → แสดงเมื่อ human ยังเล่นอยู่ (วางเดิมพัน + เริ่มรอบ)
- *   • nextRoundBtn → แสดงเฉพาะเมื่อ human ถูกคัดออก (ดูบอทเล่นต่อ ไม่ต้องวางเดิมพัน)
- *   ทั้งสองไม่เคยแสดงพร้อมกันอีกต่อไป
+ * Layout : BorderLayout
+ * ┌─────────────────────────────────────────────┐
+ * │                   NORTH                     │  ← Info Panel
+ * ├──────────────────────────────┬──────────────┤
+ * │                              │              │
+ * │            CENTER            │     EAST     │  ← CENTER = ผู้เล่น
+ * │         (Players Panel)      │  (Game Log)  │     EAST = Log
+ * │                              │              │
+ * ├──────────────────────────────┴──────────────┤
+ * │                   SOUTH                     │  ← Bottom Container
+ * └─────────────────────────────────────────────┘
+ *
+ *   betPanel   → แสดงเมื่อ human ยังเล่นอยู่ (วางเดิมพัน + เริ่มรอบ)
+ *   nextRoundBtn → แสดงเฉพาะเมื่อ human ถูกคัดออก (ดูบอทเล่นต่อ ไม่ต้องวางเดิมพัน)
  */
 public class GamePanel extends JPanel {
     private boolean endSummaryShown = false;
@@ -42,6 +52,7 @@ public class GamePanel extends JPanel {
     private final JLabel betLabel;
 
     private final JPanel actionPanel;
+    private final PlayerUI[] playerUIs;
 
     public GamePanel(BlackjackGameModel model, BlackjackGUI parent) {
         this.model = model;
@@ -77,6 +88,16 @@ public class GamePanel extends JPanel {
         playersPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.YELLOW, 2),
                 "Players", TitledBorder.CENTER, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 16), Color.YELLOW));
+
+        // Initialize player UI panels once to prevent continuous component recreation
+        // สร้างหน้าจอแสดงผลของผู้เล่นเตรียมไว้ครั้งเดียว เพื่อปรับปรุงประสิทธิภาพและเลี่ยงการวาด UI ซ้ำๆ
+        playerUIs = new PlayerUI[model.getPlayers().size()];
+        for (int i = 0; i < model.getPlayers().size(); i++) {
+            Player p = model.getPlayers().get(i);
+            playerUIs[i] = new PlayerUI(p);
+            playersPanel.add(playerUIs[i].panel);
+        }
+
         JScrollPane playerScroll = new JScrollPane(playersPanel);
         playerScroll.setBackground(new Color(34, 139, 34));
         playerScroll.setBorder(null);
@@ -124,9 +145,9 @@ public class GamePanel extends JPanel {
 
         hitBtn        = createLargeButton("HIT",       new Color(50, 205, 50),   Color.WHITE);
         standBtn      = createLargeButton("STAND",     new Color(255, 69, 0),    Color.WHITE);
-        doubleBtn     = createLargeButton("DOUBLE",    new Color(255, 215, 0),   Color.BLACK);
+        doubleBtn     = createLargeButton("DOUBLE",    new Color(255, 215, 0),   Color.WHITE);
         insuranceBtn  = createLargeButton("INSURANCE", new Color(138, 43, 226),  Color.WHITE);
-        splitBtn      = createLargeButton("SPLIT",     new Color(255, 105, 180), Color.BLACK);
+        splitBtn      = createLargeButton("SPLIT",     new Color(255, 105, 180), Color.WHITE);
         pauseBtn      = createLargeButton("PAUSE",     new Color(128, 128, 128), Color.WHITE);
         resumeBtn     = createLargeButton("RESUME",    new Color(34, 139, 34),   Color.WHITE);
         exitBtn       = createLargeButton("EXIT",      new Color(178, 34, 34),   Color.WHITE);
@@ -252,38 +273,28 @@ public class GamePanel extends JPanel {
                     : "You are out – click NEXT ROUND to watch the bots");
         }
 
-        // ── Players panel ──────────────────────────────────────────────────────
-        playersPanel.removeAll();
+        // ── Players panel update ───────────────────────────────────────────────
+        // อัปเดตข้อมูลของผู้เล่นแต่ละคนใน Swing component ที่สร้างเตรียมไว้แล้ว (หลีกเลี่ยงการสร้าง JPanel ใหม่ทุกๆ วินาที)
         for (int i = 0; i < model.getPlayers().size(); i++) {
             Player p = model.getPlayers().get(i);
-            JPanel panel = new JPanel(new BorderLayout(5, 5));
-            panel.setBackground(new Color(255, 255, 240));
-            panel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.BLACK, 2),
-                    BorderFactory.createEmptyBorder(10, 10, 10, 10)
-            ));
+            PlayerUI ui = playerUIs[i];
 
+            // สร้างชื่อและสถานะของผู้เล่นเพื่อแสดงผล
             String title = p.getName();
             if (i == model.getDealerIndex()) title += " 👑 (DEALER)";
             if (!p.isActive())               title += " 💀 (OUT)";
             if (model.isRoundInProgress() && model.getCurrentPlayer() == p && !model.isGameOver())
                 title += " ◀ PLAYING";
 
-            JLabel nameLabel = new JLabel(title);
-            nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
-            nameLabel.setForeground(new Color(0, 100, 0));
+            ui.nameLabel.setText(title);
+            ui.balanceLabel.setText(String.format("💰 $%.2f", p.getBalance()));
 
-            JLabel balanceLabel = new JLabel(String.format("💰 $%.2f", p.getBalance()));
-            balanceLabel.setFont(new Font("Arial", Font.BOLD, 14));
-
-            JTextArea handArea = new JTextArea(6, 14);
-            handArea.setEditable(false);
-            handArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-            handArea.setBackground(new Color(255, 255, 240));
             StringBuilder sb = new StringBuilder();
-
+            // วนลูปการแสดงผลแต่ละมือของผู้เล่นคนนั้นๆ (เช่น กรณีมีการ Split)
             for (Hand h : p.getHands()) {
                 if (h.getBet() > 0) sb.append("Bet: $").append(h.getBet()).append("\n");
+                
+                // สำหรับไพ่ดีลเลอร์: หากยังไม่จบรอบการเล่นและดีลเลอร์ยังไม่เปิดไพ่ ให้ซ่อนไพ่ใบที่สองไว้
                 if (i == model.getDealerIndex() && !model.isDealerRevealed()) {
                     if (h.getCards() != null && !h.getCards().isEmpty()) {
                         sb.append(h.getCards().get(0).getShortName()).append(", [Hidden]");
@@ -296,19 +307,8 @@ public class GamePanel extends JPanel {
                 sb.append("\n");
             }
             if (sb.length() == 0) sb.append("No active hand");
-            handArea.setText(sb.toString());
-
-            JPanel topPanel = new JPanel(new BorderLayout());
-            topPanel.setBackground(new Color(255, 255, 240));
-            topPanel.add(nameLabel,    BorderLayout.CENTER);
-            topPanel.add(balanceLabel, BorderLayout.SOUTH);
-
-            panel.add(topPanel,               BorderLayout.NORTH);
-            panel.add(new JScrollPane(handArea), BorderLayout.CENTER);
-            playersPanel.add(panel);
+            ui.handArea.setText(sb.toString());
         }
-        playersPanel.revalidate();
-        playersPanel.repaint();
 
         // ── Game log ───────────────────────────────────────────────────────────
         StringBuilder logSb = new StringBuilder();
@@ -372,5 +372,46 @@ public class GamePanel extends JPanel {
             msg.append(String.format("%-12s: $%8.2f %s\n", p.getName(), p.getBalance(), status));
         }
         JOptionPane.showMessageDialog(this, msg.toString(), "Game Summary", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Inner class to keep references to each player's Swing UI components.
+     * This avoids reconstructing components on every timer tick / GUI refresh.
+     * คลาสภายในช่วยเก็บส่วนประกอบ GUI ของผู้เล่น เพื่อไม่ต้องสร้างออบเจกต์ JPanel ใหม่ทุกๆ การอัปเดต
+     */
+    private static class PlayerUI {
+        final JPanel panel;
+        final JLabel nameLabel;
+        final JLabel balanceLabel;
+        final JTextArea handArea;
+
+        PlayerUI(Player player) {
+            panel = new JPanel(new BorderLayout(5, 5));
+            panel.setBackground(new Color(255, 255, 240));
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.BLACK, 2),
+                    BorderFactory.createEmptyBorder(10, 10, 10, 10)
+            ));
+
+            nameLabel = new JLabel(player.getName());
+            nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+            nameLabel.setForeground(new Color(0, 100, 0));
+
+            balanceLabel = new JLabel(String.format("💰 $%.2f", player.getBalance()));
+            balanceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+            handArea = new JTextArea(6, 14);
+            handArea.setEditable(false);
+            handArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            handArea.setBackground(new Color(255, 255, 240));
+
+            JPanel topPanel = new JPanel(new BorderLayout());
+            topPanel.setBackground(new Color(255, 255, 240));
+            topPanel.add(nameLabel, BorderLayout.CENTER);
+            topPanel.add(balanceLabel, BorderLayout.SOUTH);
+
+            panel.add(topPanel, BorderLayout.NORTH);
+            panel.add(new JScrollPane(handArea), BorderLayout.CENTER);
+        }
     }
 }

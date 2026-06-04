@@ -7,6 +7,20 @@ import java.awt.*;
  * HelpPanel.java - Help popup dialog showing game rules
  * แสดงกฎและวิธีเล่นในรูปแบบ popup dialog (modal)
  *
+ * Layout : BorderLayout
+ * ┌─────────────────────────────────────────────────┐
+ * │                     NORTH                       │
+ * │                    (ไม่ได้ใช้)                     │
+ * ├─────────────────────────────────────────────────┤
+ * │                                                 │
+ * │                    CENTER                       │
+ * │              (JScrollPane + TextArea)           │
+ * │                                                 │
+ * ├─────────────────────────────────────────────────┤
+ * │                     SOUTH                       │
+ * │              (JPanel + Close Button)            │
+ * └─────────────────────────────────────────────────┘
+ *
  * การใช้งาน: HelpPanel dlg = new HelpPanel(parentFrame); dlg.setVisible(true);
  */
 public class HelpPanel extends JDialog {
@@ -27,7 +41,7 @@ public class HelpPanel extends JDialog {
         textArea.setBackground(new Color(255, 255, 240));
         textArea.setMargin(new Insets(20, 20, 20, 20));
         textArea.setText(
-                "╔══════════════════════════════════════════════════════════════════╗\n" +
+                        "╔══════════════════════════════════════════════════════════════════╗\n" +
                         "║                       BLACKJACK RULES                            ║\n" +
                         "╚══════════════════════════════════════════════════════════════════╝\n\n" +
                         "🎯 Goal: Beat the dealer without exceeding 21.\n\n" +

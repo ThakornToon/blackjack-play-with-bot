@@ -12,8 +12,8 @@ public class MenuPanel extends JPanel {
 
     public MenuPanel(BlackjackGUI parent) {
         this.parent = parent;
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        setLayout(new GridBagLayout());  // add layoutManager to JPanel
+        GridBagConstraints gbc = new GridBagConstraints();  // Create a layout guide for layoutManager.
         setBackground(new Color(34, 139, 34));
 
         // Title
@@ -29,7 +29,7 @@ public class MenuPanel extends JPanel {
         // Start Game button
         JButton startBtn = createMenuButton("▶ START GAME", new Color(50, 205, 50));
         startBtn.addActionListener(e -> parent.showGame());
-        gbc.gridy = 1;
+        gbc.gridy = 1;  // เปลี่ยนไปแถวที่ 1 (ใต้ title)
         add(startBtn, gbc);
 
         // How to Play button

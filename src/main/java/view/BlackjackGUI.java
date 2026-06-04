@@ -23,18 +23,17 @@ public class BlackjackGUI extends JFrame {
         setLocationRelativeTo(null);
 
         cardLayout = new CardLayout();
-        mainPanel = new JPanel(cardLayout);
+        mainPanel = new JPanel(cardLayout);  // add layoutManager to JPanel
 
         model = new BlackjackGameModel();
         menuPanel = new MenuPanel(this);
         gamePanel = new GamePanel(model, this);
 
-        // HelpPanel is no longer a card — it opens as a modal dialog via showHelp()
         mainPanel.add(menuPanel, "Menu");
         mainPanel.add(gamePanel, "Game");
 
-        add(mainPanel);
-        cardLayout.show(mainPanel, "Menu");
+        add(mainPanel);  // add to JFrame
+        cardLayout.show(mainPanel, "Menu");  // cardLayout manage mainPanel to show Menu
     }
 
     public void showGame() {
