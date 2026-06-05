@@ -122,7 +122,22 @@ public class BlackjackGameModel {
     public List<Player> getPlayers()        { return players; }
     public int  getDealerIndex()            { return dealerIndex; }
     public boolean isPaused()               { return paused; }
-    public void setPaused(boolean paused)   { this.paused = paused; notifyUI(); }
+    
+    /**
+     * Set the paused state of the game. If resuming and it is currently a bot's turn, triggers the bot turn timer.
+     * ตั้งค่าสถานะการหยุดเกมชั่วคราว หากกลับมาเล่นต่อและเป็นรอบตาเดินของบอท จะสั่งให้ตัวจับเวลาของบอทเริ่มทำงานเพื่อดำเนินเกมต่อ
+     */
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+        notifyUI();
+        // หากเป็นการกด Resume และรอบเกมยังไม่จบ รวมถึงเป็นรอบของบอท (ไม่ใช่เทิร์นมนุษย์)
+        if (!paused && roundInProgress && !waitingForHuman && !gameOver) {
+            Timer timer = new Timer(500, e -> processBotTurn());
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
     public boolean isGameOver()             { return gameOver; }
     public Player  getWinner()              { return winner; }
     public int  getRoundNumber()            { return roundNumber; }
